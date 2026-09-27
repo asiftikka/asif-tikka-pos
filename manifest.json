@@ -1,0 +1,10 @@
+{
+  "name": "آصف ٹِکہ — آرڈر سسٹم",
+  "short_name": "آصف POS",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#10281f",
+  "theme_color": "#10281f",
+  "icons": []
+}
