@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>آصف ٹِکہ — آرڈر سسٹم</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@500;700&family=Noto+Naskh+Arabic:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3ecdb; --panel:#fbf7ec; --ink:#231a10; --muted:#7a6a52; --line:#d8c9a3;
+  --gold:#a07a26; --gold2:#c19a3a; --onGold:#1a1408; --head:#10281f; --headInk:#f0e2b8;
+  --wine:#7a1f2b; --ok:#1f6b47; --input:#f3ecdb;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0e0c09;--panel:#181410;--ink:#f0e6cc;--muted:#a8977a;--line:#3a3020;--gold:#d4b05a;--gold2:#e6c878;--head:#070604;--headInk:#e6c878;--wine:#d06a78;--ok:#4fb383;--input:#100d0a}
+}
+:root[data-theme="dark"]{--bg:#0e0c09;--panel:#181410;--ink:#f0e6cc;--muted:#a8977a;--line:#3a3020;--gold:#d4b05a;--gold2:#e6c878;--head:#070604;--headInk:#e6c878;--wine:#d06a78;--ok:#4fb383;--input:#100d0a}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Naskh Arabic","Segoe UI",Tahoma,serif;font-size:17px;line-height:1.75}
+.amt,.num{font-family:"Playfair Display",Georgia,serif;font-variant-numeric:lining-nums tabular-nums;direction:ltr;unicode-bidi:isolate;display:inline-block}
+header{background:var(--head);color:var(--headInk);padding:12px 18px 0;border-bottom:3px double var(--gold)}
+.top{display:flex;align-items:center;gap:10px}
+.brand{flex:1;font-family:"Noto Nastaliq Urdu","Noto Naskh Arabic",serif;font-weight:700;font-size:30px;line-height:2.1;color:var(--gold2);margin:0}
+.brand small{display:block;font-family:"Noto Naskh Arabic",serif;font-weight:400;font-size:13px;line-height:1.3;color:var(--headInk);opacity:.7;margin-top:-8px;padding-bottom:6px}
+.ibtn{font:inherit;font-size:15px;background:transparent;color:var(--headInk);border:1px solid var(--gold);border-radius:20px;padding:2px 12px;cursor:pointer}
+nav{display:flex;gap:2px;overflow-x:auto;margin-top:6px}
+nav button{flex:1 0 auto;background:transparent;border:0;color:var(--headInk);opacity:.75;font:inherit;font-size:16px;padding:8px 16px;cursor:pointer;border-radius:8px 8px 0 0}
+nav button.on{background:var(--bg);color:var(--gold);opacity:1;font-weight:700}
+main{max-width:1200px;margin:0 auto;padding:16px}
+.tab{display:none}.tab.on{display:block}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media(min-width:900px){.grid.two{grid-template-columns:1.4fr 1fr}.grid.eq{grid-template-columns:1fr 1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.panel h2{margin:0 0 10px;font-size:19px;color:var(--gold)}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px}
+.chip{flex:0 0 auto;font:inherit;font-size:15px;padding:3px 14px;border-radius:20px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.chip.on{background:var(--gold);border-color:var(--gold);color:var(--onGold);font-weight:700}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:10px}
+.item{position:relative;background:var(--input);border:1px solid var(--line);border-radius:10px;padding:14px 8px;text-align:center;cursor:pointer;font:inherit;color:var(--ink);user-select:none;transition:border-color .15s,transform .1s}
+.item:hover{border-color:var(--gold)}
+.item:active{transform:scale(.97)}
+.item b{display:block;font-size:18px}
+.item span.p{color:var(--gold);font-weight:600}
+.item.off{opacity:.4;cursor:not-allowed}
+.item .badge{position:absolute;top:-8px;left:-8px;background:var(--gold);color:var(--onGold);border-radius:50%;min-width:26px;height:26px;line-height:26px;font-size:14px;font-weight:700;font-family:"Playfair Display",serif}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.seg button{flex:1;font:inherit;font-size:15px;background:transparent;border:0;color:var(--ink);padding:5px 6px;cursor:pointer}
+.seg button.on{background:var(--gold);color:var(--onGold);font-weight:700}
+input,select,textarea{font:inherit;font-size:16px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--input);color:var(--ink);max-width:100%}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.row>input{flex:1;min-width:110px}
+.cart-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.cart-row .n{flex:1}
+.q{display:flex;align-items:center;gap:6px}
+.sm{width:30px;height:30px;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--ink);font-size:18px;cursor:pointer;line-height:1;padding:0}
+.sums{margin:10px 0;padding:10px 12px;background:var(--input);border-radius:8px}
+.sums div{display:flex;justify-content:space-between}
+.sums .grand{font-size:24px;font-weight:700;color:var(--gold);border-top:1px solid var(--line);margin-top:6px;padding-top:6px}
+.btn{font:inherit;font-size:16px;padding:9px 16px;border-radius:8px;border:1px solid var(--gold);background:var(--gold);color:var(--onGold);cursor:pointer;font-weight:700}
+.btn.alt{background:transparent;color:var(--gold);font-weight:400}
+.btn.danger{background:transparent;color:var(--wine);border-color:var(--wine);font-weight:400}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns .btn{flex:1;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.stat p{margin:0;color:var(--muted);font-size:14px}
+.stat strong{font-size:26px;color:var(--gold);font-weight:700}
+.stat small{display:block;color:var(--muted);font-size:13px}
+.stat.neg strong{color:var(--wine)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:14px}
+.scroll{overflow-x:auto}
+.folders{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.bar{height:12px;background:var(--gold);border-radius:3px;min-width:2px}
+.order-card{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:8px 0;background:var(--input)}
+.muted{color:var(--muted)}
+.warn{background:var(--wine);color:#fff;border-radius:8px;padding:8px 12px;margin-bottom:14px}
+.low td{color:var(--wine);font-weight:700}
+.hide{display:none!important}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--head);color:var(--headInk);padding:10px 20px;border-radius:30px;border:1px solid var(--gold);opacity:0;pointer-events:none;transition:opacity .2s;z-index:99}
+.toast.show{opacity:1}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:14px;z-index:50}
+#modal.on{display:flex}
+.mbox{background:var(--panel);border:1px solid var(--gold);border-radius:12px;padding:16px;max-width:420px;width:100%;max-height:92vh;overflow:auto}
+.rc{background:#fff;color:#000;padding:14px;font-size:14px;line-height:1.6;border-radius:6px;margin-bottom:12px}
+.rc h3{margin:0;text-align:center;font-size:20px}
+.rc .c{text-align:center}
+.rc table td,.rc table th{padding:2px 4px;border-bottom:1px dotted #888;color:#000}
+.rc .t{display:flex;justify-content:space-between}
+.rc .g{font-size:18px;font-weight:700;border-top:2px solid #000;margin-top:4px;padding-top:4px}
+@media print{
+  body *{visibility:hidden}
+  #receiptArea,#receiptArea *{visibility:visible}
+  #receiptArea{position:absolute;top:0;right:0;width:80mm;margin:0;border-radius:0}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1 class="brand"><span id="brandName">آصف ٹِکہ</span><small>آرڈر اور حساب کا نظام</small></h1>
+    <button class="ibtn" data-act="heldList" id="heldBtn">روکے ہوئے (<span class="num" id="heldN">0</span>)</button>
+    <button class="ibtn hide" data-act="lock" id="lockBtn">🔒 لاک</button>
+    <button class="ibtn" data-act="theme" id="themeBtn" aria-label="تھیم بدلیں">◐</button>
+  </div>
+  <nav id="nav">
+    <button data-t="order" class="on">آرڈر</button>
+    <button data-t="dash">ڈیش بورڈ</button>
+    <button data-t="rec">ریکارڈ</button>
+    <button data-t="menu">مینو اور ریٹ</button>
+    <button data-t="stock">خریداری اور اسٹاک</button>
+    <button data-t="set">سیٹنگز</button>
+  </nav>
+</header>
+<main>
+
+<section class="tab on" id="t-order">
+  <div class="grid two">
+    <div class="panel">
+      <div class="row"><input id="search" type="search" placeholder="آئٹم تلاش کریں"></div>
+      <div class="chips" id="cats"></div>
+      <div class="items" id="items"></div>
+    </div>
+    <div class="panel">
+      <h2>آرڈر نمبر <span class="num" id="nextNo">1</span></h2>
+      <div class="seg" id="typeSeg">
+        <button data-act="type" data-v="dine" class="on">ڈائن اِن</button>
+        <button data-act="type" data-v="take">ٹیک اوے</button>
+        <button data-act="type" data-v="deliv">ڈیلیوری</button>
+      </div>
+      <div id="fDeliv" class="hide">
+        <div class="row"><input id="fCust" placeholder="گاہک کا نام"><input id="fPhone" placeholder="فون نمبر" inputmode="tel"></div>
+        <div class="row"><input id="fAddr" placeholder="پتہ"></div>
+      </div>
+      <div id="cart"></div>
+      <div class="row" style="margin-top:8px">
+        <input id="fDisc" type="number" min="0" placeholder="رعایت" style="max-width:120px">
+        <div class="seg" id="dmSeg" style="margin:0;flex:0 0 auto">
+          <button data-act="dm" data-v="rs" class="on">Rs</button>
+          <button data-act="dm" data-v="pct">%</button>
+        </div>
+      </div>
+      <div class="sums" id="sums"></div>
+      <div class="seg" id="paySeg">
+        <button data-act="pay" data-v="cash" class="on">کیش</button>
+        <button data-act="pay" data-v="card">کارڈ</button>
+        <button data-act="pay" data-v="jazz">جاز کیش</button>
+        <button data-act="pay" data-v="easy">ایزی پیسہ</button>
+      </div>
+      <div class="row" id="cashRow"><input id="fCash" type="number" min="0" placeholder="وصول شدہ رقم (کیش)"></div>
+      <div class="row"><input id="fNote" placeholder="ہدایت (مثلاً کم مرچ)"></div>
+      <div class="btns" style="margin-bottom:8px">
+        <button class="btn" data-act="savePrint">سیو اور بل</button>
+        <button class="btn alt" data-act="saveOnly">صرف سیو</button>
+      </div>
+      <div class="btns">
+        <button class="btn alt" data-act="hold">روکیں</button>
+        <button class="btn danger" data-act="clear">صاف</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="t-dash">
+  <div id="lowBanner"></div>
+  <div class="stats" id="stats"></div>
+  <div class="grid eq">
+    <div class="panel"><h2>پچھلے 7 دن کی سیل</h2><div id="week"></div></div>
+    <div class="panel"><h2>آج کیا کیا بکا</h2><div id="todayItems"></div></div>
+    <div class="panel"><h2>ادائیگی کا طریقہ (آج)</h2><div id="payMix"></div></div>
+    <div class="panel"><h2>آرڈر کی قسم (آج)</h2><div id="typeMix"></div></div>
+  </div>
+</section>
+
+<section class="tab" id="t-rec">
+  <div class="panel">
+    <h2>تاریخ چنیں</h2>
+    <div class="row"><input type="date" id="pickDate" style="flex:0 0 auto"><button class="btn alt" data-act="today">آج</button></div>
+    <div class="muted">جن دنوں کا ریکارڈ موجود ہے:</div>
+    <div class="folders" id="folders"></div>
+  </div>
+  <div class="panel" style="margin-top:16px" id="dayView"></div>
+</section>
+
+<section class="tab" id="t-menu">
+  <div class="grid two">
+    <div class="panel"><h2>ریٹ لسٹ</h2><div class="scroll"><table id="menuTable"></table></div></div>
+    <div>
+      <div class="panel"><h2>نیا آئٹم</h2>
+        <div class="row"><input id="newName" placeholder="آئٹم کا نام"><input id="newPrice" type="number" min="0" placeholder="ریٹ" style="max-width:100px"></div>
+        <div class="row"><select id="newCat" style="flex:1"></select></div>
+        <button class="btn" style="width:100%" data-act="addItem">آئٹم شامل کریں</button>
+      </div>
+      <div class="panel" style="margin-top:16px"><h2>نئی کیٹیگری</h2>
+        <div class="row"><input id="newCatName" placeholder="کیٹیگری کا نام"><button class="btn alt" data-act="addCat">شامل کریں</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="t-stock">
+  <div class="grid eq">
+    <div class="panel"><h2>خریداری (خرچہ)</h2>
+      <div class="row"><input type="date" id="buyDate" style="flex:0 0 auto"></div>
+      <div class="row"><input id="buyNote" placeholder="کیا خریدا"><input id="buyAmt" type="number" min="0" placeholder="رقم" style="max-width:110px"></div>
+      <button class="btn" style="width:100%;margin-bottom:10px" data-act="addBuy">خریداری سیو کریں</button>
+      <div id="buyList"></div>
+    </div>
+    <div class="panel"><h2>اسٹاک کی مقدار</h2>
+      <div class="row"><input id="stName" placeholder="چیز"><input id="stUnit" placeholder="اکائی (کلو)" style="max-width:100px"></div>
+      <div class="row"><input id="stQty" type="number" min="0" placeholder="موجود مقدار"><input id="stMin" type="number" min="0" placeholder="کم از کم حد"></div>
+      <button class="btn" style="width:100%;margin-bottom:10px" data-act="addStock">اسٹاک آئٹم شامل کریں</button>
+      <div class="scroll"><table id="stockTable"></table></div>
+    </div>
+  </div>
+</section>
+
+<section class="tab" id="t-set">
+  <div class="grid eq">
+    <div class="panel"><h2>ریسٹورنٹ کی معلومات</h2>
+      <div class="row"><input id="sName" placeholder="ریسٹورنٹ کا نام"></div>
+      <div class="row"><input id="sPhone" placeholder="فون"><input id="sAddr" placeholder="پتہ"></div>
+      <div class="row"><label>ٹیکس %</label><input id="sTax" type="number" min="0" style="max-width:90px"><label>سروس چارج % (صرف ڈائن اِن)</label><input id="sSvc" type="number" min="0" style="max-width:90px"></div>
+      <div class="row"><input id="sFoot" placeholder="بل کے آخر کی سطر"></div>
+      <button class="btn" data-act="saveSettings">سیو کریں</button>
+    </div>
+    <div class="panel"><h2>پن (ایڈمن لاک)</h2>
+      <p class="muted" style="margin-top:0">پن لگانے کے بعد ڈیش بورڈ، ریکارڈ، مینو، اسٹاک اور سیٹنگز پن کے بغیر نہیں کھلیں گے۔ آرڈر اسکرین کھلی رہے گی۔</p>
+      <div class="row"><input id="sPin" type="password" inputmode="numeric" maxlength="6" placeholder="نیا پن (4 سے 6 عدد)"><button class="btn" data-act="setPin">پن لگائیں</button><button class="btn danger" data-act="clearPin">پن ہٹائیں</button></div>
+    </div>
+    <div class="panel"><h2>بیک اپ</h2>
+      <p class="muted" style="margin-top:0">"بیک اپ بنائیں" دبا کر نیچے کا متن کاپی کر کے کہیں محفوظ کر لیں (نوٹس یا واٹس ایپ)۔ بحال کرنے کے لیے وہی متن یہاں پیسٹ کریں۔</p>
+      <textarea id="bk" rows="5" style="width:100%" placeholder="بیک اپ کا متن"></textarea>
+      <div class="btns" style="margin-top:8px"><button class="btn" data-act="bkMake">بیک اپ بنائیں</button><button class="btn alt" data-act="bkLoad">بحال کریں</button></div>
+    </div>
+    <div class="panel"><h2>ڈیٹا صاف کریں</h2>
+      <p class="muted" style="margin-top:0">تمام آرڈر، مینو اور سیٹنگز مٹ جائیں گی اور نمونہ ڈیٹا واپس آ جائے گا۔</p>
+      <button class="btn danger" data-act="resetAll">سب کچھ مٹائیں</button>
+    </div>
+  </div>
+</section>
+
+</main>
+<div id="modal"></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+(function(){
+"use strict";
+var KEY="asif-pos-v2",OLD="asif-pos-v1",TK="asif-theme";
+var SB_URL="https://auamngrespqtjkwkcdiw.supabase.co";
+var SB_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1YW1uZ3Jlc3BxdGprd2tjZGl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNTY3NzQsImV4cCI6MjEwNTczMjc3NH0.3GKblU02CvUBjhCQ4qaCaRNVzsWU0MtZHzxObiZG8XM";
+var SB_TABLE="pos_state",SB_ID="asif-tikka";
+var sb=null;
+try{ if(window.supabase) sb=window.supabase.createClient(SB_URL,SB_ANON); }catch(e){}
+var sbSaveTimer=null;
+function sbSaveNow(){
+  if(!sb)return;
+  clearTimeout(sbSaveTimer);
+  sbSaveTimer=setTimeout(function(){
+    sb.from(SB_TABLE).upsert({id:SB_ID,data:S,updated_at:new Date().toISOString()}).then(function(){});
+  },700);
+}
+function sbLoadOnce(){
+  if(!sb)return Promise.resolve(null);
+  return sb.from(SB_TABLE).select("data").eq("id",SB_ID).maybeSingle().then(function(r){
+    if(r.error||!r.data)return null; return r.data.data;
+  }).catch(function(){return null});
+}
+var TYPES={dine:"ڈائن اِن",take:"ٹیک اوے",deliv:"ڈیلیوری"};
+var PAYS={cash:"کیش",card:"کارڈ",jazz:"جاز کیش",easy:"ایزی پیسہ"};
+var ADMIN=["dash","rec","menu","stock","set"];
+
+function defaults(){return{
+  cats:["گرل","کڑاہی","روٹی و نان","سائیڈ","مشروبات"],
+  menu:[
+    {id:1,name:"ٹِکہ",price:70,cat:"گرل"},{id:2,name:"بوٹی",price:60,cat:"گرل"},{id:3,name:"دل",price:50,cat:"گرل"},{id:4,name:"دمچی",price:80,cat:"گرل"},
+    {id:5,name:"کڑاہی پیس",price:150,cat:"کڑاہی"},
+    {id:6,name:"روٹی",price:40,cat:"روٹی و نان"},{id:7,name:"نان",price:10,cat:"روٹی و نان"},
+    {id:8,name:"رائتہ",price:30,cat:"سائیڈ"},{id:9,name:"سلاد",price:20,cat:"سائیڈ"},
+    {id:10,name:"کولڈ ڈرنک",price:80,cat:"مشروبات"},{id:11,name:"چائے",price:40,cat:"مشروبات"}
+  ],
+  orders:[],held:[],purchases:[],
+  stock:[{id:1,name:"چکن",unit:"کلو",qty:20,min:5},{id:2,name:"آٹا",unit:"کلو",qty:50,min:10},{id:3,name:"تیل",unit:"لیٹر",qty:15,min:5}],
+  settings:{name:"آصف ٹِکہ",phone:"",address:"",taxPct:0,servicePct:0,footer:"آنے کا شکریہ",pin:""},
+  nextId:100,seq:{date:"",n:0}
+}}
+
+var S;
+function fix(){
+  var d=defaults();
+  ["cats","menu","orders","held","purchases","stock"].forEach(function(k){if(!Array.isArray(S[k]))S[k]=d[k]});
+  S.settings=Object.assign({},d.settings,S.settings||{});
+  if(!S.seq)S.seq=d.seq; if(!S.nextId)S.nextId=100;
+}
+function load(){
+  try{var r=localStorage.getItem(KEY);if(r){S=JSON.parse(r);fix();return}}catch(e){}
+  S=defaults();
+  try{
+    var o=localStorage.getItem(OLD);
+    if(o){
+      var p=JSON.parse(o),d=defaults();
+      if(p.menu&&p.menu.length){S.menu=p.menu.map(function(m){
+        var f=d.menu.filter(function(x){return x.name===m.name})[0];
+        return{id:m.id,name:m.name,price:m.price,cat:f?f.cat:"سائیڈ"};
+      });}
+      S.orders=(p.orders||[]).map(function(x,i){return{id:x.id,no:i+1,ts:x.ts,date:x.date,type:"take",table:"",items:x.items,sub:x.total,discount:0,service:0,tax:0,total:x.total,pay:"cash",paid:0,change:0,note:""}});
+      S.purchases=p.purchases||[];
+      var mx=100;S.menu.forEach(function(m){if(m.id>=mx)mx=m.id+1});S.nextId=mx;
+    }
+  }catch(e){}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} sbSaveNow();}
+load();
+
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function fmt(n){return Number(n).toLocaleString("en-US")}
+function num(n){return '<span class="num">'+fmt(n)+'</span>'}
+function rs(n){return '<span class="amt">Rs '+fmt(n)+'</span>'}
+function ymd(d){d=d||new Date();return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+function sum(a,f){return a.reduce(function(s,x){return s+f(x)},0)}
+function toast(t){var el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(function(){el.classList.remove("show")},1800)}
+function menuItem(id){return S.menu.filter(function(m){return m.id===id})[0]}
+function ordersOn(d){return S.orders.filter(function(o){return o.date===d})}
+
+// ---------- Theme ----------
+function applyTheme(t){if(t)document.documentElement.setAttribute("data-theme",t)}
+try{applyTheme(localStorage.getItem(TK))}catch(e){}
+
+// ---------- Ticket state ----------
+var cart={},view={cat:"all",q:""};
+function newT(){return{type:"dine",table:"",cust:"",phone:"",addr:"",discVal:0,discMode:"rs",pay:"cash",cashIn:"",note:""}}
+var T=newT();
+function lines(){
+  return Object.keys(cart).map(Number).filter(function(i){return cart[i]>0&&menuItem(i)}).map(function(i){var m=menuItem(i);return{name:m.name,price:m.price,qty:cart[i],id:i}});
+}
+function calc(){
+  var L=lines(),sub=sum(L,function(l){return l.price*l.qty});
+  var dv=parseFloat(T.discVal)||0;
+  var disc=Math.round(T.discMode==="pct"?sub*Math.min(100,dv)/100:Math.min(sub,dv));
+  var base=sub-disc;
+  var service=T.type==="dine"?Math.round(base*(+S.settings.servicePct||0)/100):0;
+  var tax=Math.round((base+service)*(+S.settings.taxPct||0)/100);
+  return{sub:sub,disc:disc,service:service,tax:tax,total:base+service+tax};
+}
+function nextNo(){var d=ymd();return S.seq.date===d?S.seq.n+1:1}
+
+// ---------- Order screen ----------
+function renderCats(){
+  var h='<button class="chip'+(view.cat==="all"?' on':'')+'" data-act="cat" data-v="all">سب</button>';
+  S.cats.forEach(function(c){h+='<button class="chip'+(view.cat===c?' on':'')+'" data-act="cat" data-v="'+esc(c)+'">'+esc(c)+'</button>'});
+  $("cats").innerHTML=h;
+}
+function renderItems(){
+  var q=view.q.trim();
+  var list=S.menu.filter(function(m){return(view.cat==="all"||m.cat===view.cat)&&(!q||m.name.indexOf(q)>-1)});
+  $("items").innerHTML=list.length?list.map(function(m){
+    var n=cart[m.id]||0;
+    return '<button class="item'+(m.off?' off':'')+'" data-act="tap" data-id="'+m.id+'">'+(n?'<div class="badge">'+n+'</div>':'')+'<b>'+esc(m.name)+'</b><span class="p amt">Rs '+m.price+'</span>'+(m.off?'<div class="muted" style="font-size:13px">ختم</div>':'')+'</button>';
+  }).join(""):'<p class="muted">کوئی آئٹم نہیں ملا۔</p>';
+}
+function renderCart(){
+  var L=lines();
+  $("cart").innerHTML=L.length?L.map(function(l){
+    return '<div class="cart-row"><span class="n">'+esc(l.name)+'</span><div class="q"><button class="sm" data-act="minus" data-id="'+l.id+'">−</button><b class="num">'+l.qty+'</b><button class="sm" data-act="plus" data-id="'+l.id+'">+</button></div><span style="width:74px;text-align:left">'+rs(l.price*l.qty)+'</span></div>';
+  }).join(""):'<p class="muted">ابھی کوئی آئٹم نہیں۔ مینو سے ٹیپ کریں۔</p>';
+  renderSums();
+  $("nextNo").textContent=nextNo();
+  $("heldN").textContent=S.held.length;
+}
+function renderSums(){
+  var c=calc(),h='<div><span>مجموعہ</span>'+rs(c.sub)+'</div>';
+  if(c.disc)h+='<div><span>رعایت</span>'+rs(-c.disc)+'</div>';
+  if(c.service)h+='<div><span>سروس چارج</span>'+rs(c.service)+'</div>';
+  if(c.tax)h+='<div><span>ٹیکس</span>'+rs(c.tax)+'</div>';
+  h+='<div class="grand"><span>کل رقم</span>'+rs(c.total)+'</div>';
+  var ci=parseFloat(T.cashIn)||0;
+  if(T.pay==="cash"&&ci>=c.total&&c.total>0)h+='<div><span>واپسی</span>'+rs(ci-c.total)+'</div>';
+  $("sums").innerHTML=h;
+}
+function syncTicketUI(){
+  [].forEach.call($("typeSeg").children,function(b){b.classList.toggle("on",b.dataset.v===T.type)});
+  [].forEach.call($("paySeg").children,function(b){b.classList.toggle("on",b.dataset.v===T.pay)});
+  [].forEach.call($("dmSeg").children,function(b){b.classList.toggle("on",b.dataset.v===T.discMode)});
+  $("fDeliv").classList.toggle("hide",T.type!=="deliv");
+  $("cashRow").classList.toggle("hide",T.pay!=="cash");
+  $("fCust").value=T.cust;$("fPhone").value=T.phone;$("fAddr").value=T.addr;
+  $("fDisc").value=T.discVal||"";$("fCash").value=T.cashIn;$("fNote").value=T.note;
+}
+function resetTicket(){cart={};T=newT();syncTicketUI();renderItems();renderCart()}
+["fCust:cust","fPhone:phone","fAddr:addr","fDisc:discVal","fCash:cashIn","fNote:note"].forEach(function(p){
+  var a=p.split(":");$(a[0]).addEventListener("input",function(){T[a[1]]=this.value;renderSums()});
+});
+$("search").addEventListener("input",function(){view.q=this.value;renderItems()});
+
+function makeOrder(){
+  var L=lines();if(!L.length){toast("پہلے آئٹم چنیں");return null}
+  var c=calc(),ci=parseFloat(T.cashIn)||0;
+  if(T.pay==="cash"&&ci>0&&ci<c.total){toast("وصول شدہ رقم کل رقم سے کم ہے");return null}
+  var now=new Date(),d=ymd(now);
+  if(S.seq.date!==d)S.seq={date:d,n:0};
+  S.seq.n++;
+  var o={id:Date.now(),no:S.seq.n,ts:now.toISOString(),date:d,type:T.type,table:T.table,cust:T.cust,phone:T.phone,addr:T.addr,
+    items:L.map(function(l){return{name:l.name,price:l.price,qty:l.qty}}),sub:c.sub,discount:c.disc,service:c.service,tax:c.tax,total:c.total,
+    pay:T.pay,paid:T.pay==="cash"?ci:0,change:(T.pay==="cash"&&ci>c.total)?ci-c.total:0,note:T.note};
+  S.orders.push(o);save();resetTicket();
+  return o;
+}
+
+// ---------- Receipts ----------
+function timeStr(ts){return new Date(ts).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"})}
+function receiptHTML(o,kot){
+  var s=S.settings,h='<div class="rc" id="receiptArea"><h3>'+esc(s.name)+'</h3>';
+  if(!kot){if(s.address)h+='<div class="c">'+esc(s.address)+'</div>';if(s.phone)h+='<div class="c">'+esc(s.phone)+'</div>'}
+  h+='<div class="c"><b>'+(kot?'کچن پرچی':'بل')+'</b></div>';
+  h+='<div class="t"><span>آرڈر # <b class="num">'+o.no+'</b></span><span class="num">'+esc(o.date)+' '+timeStr(o.ts)+'</span></div>';
+  h+='<div class="t"><span>'+TYPES[o.type]+(o.type==="dine"&&o.table?' — ٹیبل '+esc(o.table):'')+'</span>'+(kot?'':'<span>'+PAYS[o.pay]+'</span>')+'</div>';
+  if(o.type==="deliv"){h+='<div>'+esc(o.cust)+' '+esc(o.phone)+'</div><div>'+esc(o.addr)+'</div>'}
+  h+='<table>';
+  o.items.forEach(function(i){
+    h+=kot?'<tr><td style="font-size:18px"><b>'+esc(i.name)+'</b></td><td style="font-size:20px"><b class="num">× '+i.qty+'</b></td></tr>'
+          :'<tr><td>'+esc(i.name)+'</td><td><span class="num">'+i.qty+' × '+fmt(i.price)+'</span></td><td style="text-align:left"><span class="num">'+fmt(i.qty*i.price)+'</span></td></tr>';
+  });
+  h+='</table>';
+  if(o.note)h+='<div>ہدایت: '+esc(o.note)+'</div>';
+  if(!kot){
+    h+='<div class="t"><span>مجموعہ</span><span class="num">'+fmt(o.sub)+'</span></div>';
+    if(o.discount)h+='<div class="t"><span>رعایت</span><span class="num">-'+fmt(o.discount)+'</span></div>';
+    if(o.service)h+='<div class="t"><span>سروس چارج</span><span class="num">'+fmt(o.service)+'</span></div>';
+    if(o.tax)h+='<div class="t"><span>ٹیکس</span><span class="num">'+fmt(o.tax)+'</span></div>';
+    h+='<div class="t g"><span>کل</span><span class="num">Rs '+fmt(o.total)+'</span></div>';
+    if(o.paid)h+='<div class="t"><span>وصول</span><span class="num">'+fmt(o.paid)+'</span></div><div class="t"><span>واپسی</span><span class="num">'+fmt(o.change)+'</span></div>';
+    if(s.footer)h+='<div class="c" style="margin-top:8px">'+esc(s.footer)+'</div>';
+  }
+  return h+'</div>';
+}
+function openModal(h){$("modal").innerHTML='<div class="mbox">'+h+'</div>';$("modal").classList.add("on")}
+function closeModal(){$("modal").classList.remove("on");$("modal").innerHTML=""}
+$("modal").addEventListener("click",function(e){if(e.target===$("modal"))closeModal()});
+function showReceipt(o,kot){
+  openModal(receiptHTML(o,kot)+'<div class="btns"><button class="btn" data-act="print">پرنٹ</button><button class="btn alt" data-act="close">بند کریں</button></div>');
+}
+
+// ---------- Aggregation ----------
+function itemCounts(orders){
+  var c={};orders.forEach(function(o){o.items.forEach(function(it){c[it.name]=c[it.name]||{qty:0,amt:0};c[it.name].qty+=it.qty;c[it.name].amt+=it.qty*it.price})});
+  return Object.keys(c).map(function(k){return{name:k,qty:c[k].qty,amt:c[k].amt}}).sort(function(a,b){return b.amt-a.amt});
+}
+function itemTable(orders){
+  var rows=itemCounts(orders);
+  if(!rows.length)return '<p class="muted">کوئی سیل نہیں۔</p>';
+  return '<div class="scroll"><table><tr><th>آئٹم</th><th>تعداد</th><th>رقم</th></tr>'+rows.map(function(r){return '<tr><td>'+esc(r.name)+'</td><td>'+num(r.qty)+'</td><td>'+rs(r.amt)+'</td></tr>'}).join("")+'</table></div>';
+}
+function mixTable(rows){
+  var max=1;rows.forEach(function(r){if(r.v>max)max=r.v});
+  if(!rows.length||!sum(rows,function(r){return r.v}))return '<p class="muted">آج ابھی کوئی سیل نہیں۔</p>';
+  return '<table>'+rows.map(function(r){return '<tr><td style="width:90px">'+esc(r.k)+'</td><td><div class="bar" style="width:'+Math.round(r.v/max*100)+'%"></div></td><td style="width:110px">'+r.txt+'</td></tr>'}).join("")+'</table>';
+}
+
+// ---------- Dashboard ----------
+function lowStock(){return S.stock.filter(function(s){return s.qty<=s.min})}
+function renderDash(){
+  var t=ymd(),od=ordersOn(t),sales=sum(od,function(o){return o.total});
+  var buy=sum(S.purchases.filter(function(p){return p.date===t}),function(p){return p.amount});
+  var y=new Date();y.setDate(y.getDate()-1);var ys=sum(ordersOn(ymd(y)),function(o){return o.total});
+  var delta=ys>0?('کل کے مقابلے '+(sales>=ys?'+':'')+Math.round((sales-ys)/ys*100)+'%'):'کل کی سیل درج نہیں';
+  var net=sales-buy;
+  $("stats").innerHTML=
+    '<div class="stat"><p>آج کی سیل</p><strong class="amt">Rs '+fmt(sales)+'</strong><small>'+delta+'</small></div>'+
+    '<div class="stat"><p>آج کے آرڈر</p><strong class="num">'+od.length+'</strong></div>'+
+    '<div class="stat"><p>اوسط بل</p><strong class="amt">Rs '+fmt(od.length?Math.round(sales/od.length):0)+'</strong></div>'+
+    '<div class="stat"><p>آج کی خریداری</p><strong class="amt">Rs '+fmt(buy)+'</strong></div>'+
+    '<div class="stat'+(net<0?' neg':'')+'"><p>بچت (سیل − خریداری)</p><strong class="amt">Rs '+fmt(net)+'</strong></div>';
+  var lows=lowStock();
+  $("lowBanner").innerHTML=lows.length?'<div class="warn">اسٹاک کم ہے: '+lows.map(function(s){return esc(s.name)+' ('+fmt(s.qty)+' '+esc(s.unit)+')'}).join("، ")+'</div>':'';
+  var days=[],max=1;
+  for(var i=0;i<7;i++){var d=new Date();d.setDate(d.getDate()-i);var k=ymd(d);var s=sum(ordersOn(k),function(o){return o.total});days.push({k:k,v:s,txt:rs(s)});if(s>max)max=s}
+  $("week").innerHTML=mixTable(days.map(function(x){return{k:x.k,v:x.v,txt:x.txt}})).replace(/<td style="width:90px">([^<]*)<\/td>/g,function(m,a){return '<td style="width:110px"><span class="num">'+a+'</span></td>'});
+  $("todayItems").innerHTML=itemTable(od);
+  var pm={};od.forEach(function(o){pm[o.pay]=(pm[o.pay]||0)+o.total});
+  $("payMix").innerHTML=mixTable(Object.keys(pm).map(function(k){return{k:PAYS[k]||k,v:pm[k],txt:rs(pm[k])}}));
+  var tm={};od.forEach(function(o){tm[o.type]=(tm[o.type]||0)+1});
+  $("typeMix").innerHTML=mixTable(Object.keys(tm).map(function(k){return{k:TYPES[k]||k,v:tm[k],txt:num(tm[k])+' آرڈر'}}));
+}
+
+// ---------- Records ----------
+var selDate=ymd();
+function renderRec(){
+  $("pickDate").value=selDate;
+  var ds={};S.orders.forEach(function(o){ds[o.date]=1});
+  var list=Object.keys(ds).sort().reverse();
+  $("folders").innerHTML=list.length?list.map(function(d){return '<button class="chip'+(d===selDate?' on':'')+'" data-act="folder" data-v="'+d+'">📁 <span class="num">'+d+'</span></button>'}).join(""):'<span class="muted">ابھی کوئی ریکارڈ نہیں</span>';
+  var od=ordersOn(selDate),sales=sum(od,function(o){return o.total});
+  var buy=sum(S.purchases.filter(function(p){return p.date===selDate}),function(p){return p.amount});
+  var h='<h2><span class="num">'+esc(selDate)+'</span> کا ریکارڈ</h2><div class="stats">'+
+    '<div class="stat"><p>کل آرڈر</p><strong class="num">'+od.length+'</strong></div>'+
+    '<div class="stat"><p>کل سیل</p><strong class="amt">Rs '+fmt(sales)+'</strong></div>'+
+    '<div class="stat"><p>خریداری</p><strong class="amt">Rs '+fmt(buy)+'</strong></div></div>'+
+    '<h2>کیا کیا بکا</h2>'+itemTable(od)+'<h2 style="margin-top:14px">آرڈرز</h2>';
+  h+=od.length?od.slice().reverse().map(function(o){
+    return '<div class="order-card"><div class="row" style="margin:0"><b class="num">#'+o.no+'</b><span class="num">'+timeStr(o.ts)+'</span><span class="muted" style="flex:1">'+TYPES[o.type]+' · '+PAYS[o.pay]+' — '+o.items.map(function(i){return esc(i.name)+' × '+i.qty}).join("، ")+'</span><b>'+rs(o.total)+'</b><button class="btn alt" style="padding:2px 10px" data-act="reprint" data-id="'+o.id+'">بل</button><button class="sm" data-act="delOrder" data-id="'+o.id+'" title="حذف">✕</button></div></div>';
+  }).join(""):'<p class="muted">کوئی آرڈر نہیں۔</p>';
+  $("dayView").innerHTML=h;
+}
+$("pickDate").addEventListener("change",function(){if(this.value){selDate=this.value;renderRec()}});
+
+// ---------- Menu ----------
+function catOptions(sel){return S.cats.map(function(c){return '<option'+(c===sel?' selected':'')+'>'+esc(c)+'</option>'}).join("")}
+function renderMenu(){
+  $("menuTable").innerHTML='<tr><th>آئٹم</th><th>کیٹیگری</th><th>ریٹ</th><th>دستیاب</th><th></th></tr>'+S.menu.map(function(m){
+    return '<tr><td>'+esc(m.name)+'</td><td><select data-cat="'+m.id+'">'+catOptions(m.cat)+'</select></td><td><input type="number" min="0" value="'+m.price+'" data-price="'+m.id+'" style="width:80px"></td><td><input type="checkbox" data-avail="'+m.id+'"'+(m.off?'':' checked')+'></td><td><button class="sm" data-act="rmItem" data-id="'+m.id+'" title="حذف">✕</button></td></tr>';
+  }).join("");
+  $("newCat").innerHTML=catOptions();
+}
+$("menuTable").addEventListener("change",function(e){
+  var t=e.target,id=t.dataset.price||t.dataset.cat||t.dataset.avail;if(!id)return;
+  var m=menuItem(+id);if(!m)return;
+  if(t.dataset.price){var v=parseFloat(t.value);if(v>=0){m.price=v;toast("ریٹ بدل گیا")}}
+  else if(t.dataset.cat){m.cat=t.value}
+  else{m.off=!t.checked}
+  save();
+});
+
+// ---------- Stock & purchases ----------
+function renderStock(){
+  if(!$("buyDate").value)$("buyDate").value=ymd();
+  var pl=S.purchases.slice().sort(function(a,b){return b.id-a.id}).slice(0,20);
+  $("buyList").innerHTML=pl.length?'<div class="scroll"><table>'+pl.map(function(p){return '<tr><td><span class="num">'+esc(p.date)+'</span></td><td>'+esc(p.note||"—")+'</td><td>'+rs(p.amount)+'</td><td><button class="sm" data-act="delBuy" data-id="'+p.id+'">✕</button></td></tr>'}).join("")+'</table></div>':'<p class="muted">ابھی کوئی خریداری درج نہیں۔</p>';
+  $("stockTable").innerHTML='<tr><th>چیز</th><th>مقدار</th><th>کم از کم</th><th></th></tr>'+S.stock.map(function(s){
+    return '<tr class="'+(s.qty<=s.min?'low':'')+'"><td>'+esc(s.name)+' <span class="muted">('+esc(s.unit)+')</span></td><td><input type="number" min="0" step="any" value="'+s.qty+'" data-sq="'+s.id+'" style="width:80px"></td><td><input type="number" min="0" step="any" value="'+s.min+'" data-sm="'+s.id+'" style="width:70px"></td><td><button class="sm" data-act="delStock" data-id="'+s.id+'">✕</button></td></tr>';
+  }).join("");
+}
+$("stockTable").addEventListener("change",function(e){
+  var t=e.target,id=t.dataset.sq||t.dataset.sm;if(!id)return;
+  var s=S.stock.filter(function(x){return x.id===+id})[0];if(!s)return;
+  var v=parseFloat(t.value)||0;
+  if(t.dataset.sq)s.qty=v;else s.min=v;
+  save();renderStock();
+});
+
+// ---------- Settings ----------
+function renderSet(){
+  var s=S.settings;
+  $("sName").value=s.name;$("sPhone").value=s.phone;$("sAddr").value=s.address;$("sTax").value=s.taxPct;$("sSvc").value=s.servicePct;$("sFoot").value=s.footer;
+}
+function applyBrand(){
+  $("brandName").textContent=S.settings.name||"ریسٹورنٹ";
+  document.title=(S.settings.name||"ریسٹورنٹ")+" — آرڈر سسٹم";
+  $("lockBtn").classList.toggle("hide",!(S.settings.pin&&unlocked));
+}
+
+// ---------- Tabs & PIN ----------
+var unlocked=false,current="order";
+function show(t){
+  current=t;
+  [].forEach.call($("nav").children,function(x){x.classList.toggle("on",x.dataset.t===t)});
+  [].forEach.call(document.querySelectorAll(".tab"),function(x){x.classList.remove("on")});
+  $("t-"+t).classList.add("on");
+  render();
+}
+function go(t){
+  if(ADMIN.indexOf(t)>-1&&S.settings.pin&&!unlocked){pinModal(t);return}
+  show(t);
+}
+function pinModal(t){
+  openModal('<h2 style="margin-top:0;color:var(--gold)">پن درج کریں</h2><div class="row"><input id="pinIn" type="password" inputmode="numeric" maxlength="6" autofocus></div><div class="btns"><button class="btn" data-act="pinOk" data-v="'+t+'">کھولیں</button><button class="btn alt" data-act="close">بند</button></div>');
+  var el=$("pinIn");setTimeout(function(){el.focus()},50);
+  el.addEventListener("keydown",function(e){if(e.key==="Enter")tryPin(t)});
+}
+function tryPin(t){
+  if($("pinIn").value===S.settings.pin){unlocked=true;closeModal();applyBrand();show(t)}
+  else{toast("پن غلط ہے");$("pinIn").value=""}
+}
+$("nav").addEventListener("click",function(e){var b=e.target.closest("button");if(b)go(b.dataset.t)});
+
+// ---------- Held orders ----------
+function heldModal(){
+  var h='<h2 style="margin-top:0;color:var(--gold)">روکے ہوئے آرڈر</h2>';
+  h+=S.held.length?S.held.map(function(x){
+    var n=Object.keys(x.cart).reduce(function(s,k){return s+x.cart[k]},0);
+    return '<div class="order-card"><div class="row" style="margin:0"><span class="num">'+timeStr(x.ts)+'</span><span style="flex:1"><b style="color:var(--gold)">'+esc(x.tag||"بغیر نام")+'</b> — '+TYPES[x.T.type]+' · '+n+' آئٹم</span><button class="btn" style="padding:2px 12px" data-act="resume" data-id="'+x.id+'">کھولیں</button><button class="sm" data-act="delHeld" data-id="'+x.id+'">✕</button></div></div>';
+  }).join(""):'<p class="muted">کوئی آرڈر رکا ہوا نہیں۔</p>';
+  openModal(h+'<button class="btn alt" style="width:100%;margin-top:8px" data-act="close">بند کریں</button>');
+}
+
+// ---------- Actions ----------
+var A={
+  tap:function(d){var m=menuItem(+d.id);if(!m||m.off)return;cart[m.id]=(cart[m.id]||0)+1;renderItems();renderCart()},
+  plus:function(d){cart[d.id]++;renderItems();renderCart()},
+  minus:function(d){cart[d.id]--;if(cart[d.id]<=0)delete cart[d.id];renderItems();renderCart()},
+  cat:function(d){view.cat=d.v;renderCats();renderItems()},
+  type:function(d){T.type=d.v;syncTicketUI();renderSums()},
+  pay:function(d){T.pay=d.v;syncTicketUI();renderSums()},
+  dm:function(d){T.discMode=d.v;syncTicketUI();renderSums()},
+  clear:function(){if(!lines().length||confirm("موجودہ آرڈر صاف کریں؟"))resetTicket()},
+  saveOnly:function(){var o=makeOrder();if(o)toast("آرڈر #"+o.no+" سیو ہو گیا — Rs "+fmt(o.total))},
+  savePrint:function(){var o=makeOrder();if(o)showReceipt(o,false)},
+  kot:function(){
+    var L=lines();if(!L.length){toast("پہلے آئٹم چنیں");return}
+    showReceipt({no:nextNo(),ts:new Date().toISOString(),date:ymd(),type:T.type,table:T.table,cust:T.cust,phone:T.phone,addr:T.addr,items:L,note:T.note},true);
+  },
+  hold:function(){
+    if(!lines().length){toast("پہلے آئٹم چنیں");return}
+    var n=1;S.held.forEach(function(h){var m=/^آرڈر (\d+)$/.exec(h.tag||"");if(m&&+m[1]>=n)n=+m[1]+1});
+    openModal('<h2 style="margin-top:0;color:var(--gold)">نشان لگائیں</h2><p class="muted" style="margin-top:0">اس آرڈر کو کوئی پہچان دیں، مثلاً گاہک کا نام یا کوئی نشانی — تاکہ واپسی پر آسانی سے پتا چل سکے</p><div class="row"><input id="tagIn" placeholder="مثلاً: نیلی قمیض والے" value="آرڈر '+n+'"></div><div class="btns"><button class="btn" data-act="holdSave">روکیں</button><button class="btn alt" data-act="close">منسوخ</button></div>');
+    setTimeout(function(){var el=$("tagIn");el.focus();el.select()},50);
+  },
+  holdSave:function(){
+    var tag=($("tagIn").value||"").trim()||"بغیر نام";
+    S.held.push({id:Date.now(),ts:new Date().toISOString(),cart:cart,T:T,tag:tag});save();closeModal();resetTicket();toast('"'+tag+'" کے نام سے روک دیا گیا');
+  },
+  heldList:heldModal,
+  resume:function(d){
+    var x=S.held.filter(function(h){return h.id===+d.id})[0];if(!x)return;
+    if(lines().length&&!confirm("موجودہ آرڈر مٹ جائے گا۔ جاری رکھیں؟"))return;
+    cart=x.cart;T=x.T;S.held=S.held.filter(function(h){return h!==x});save();closeModal();show("order");syncTicketUI();renderItems();renderCart();
+    toast('"'+x.tag+'" کا آرڈر کھل گیا — نئے آئٹم شامل کر کے دوبارہ روکیں یا بل بنائیں');
+  },
+  delHeld:function(d){S.held=S.held.filter(function(h){return h.id!==+d.id});save();renderCart();heldModal()},
+  print:function(){try{window.print()}catch(e){toast("پرنٹ اس ونڈو میں دستیاب نہیں")}},
+  close:closeModal,
+  pinOk:function(d){tryPin(d.v)},
+  lock:function(){unlocked=false;applyBrand();show("order");toast("لاک ہو گیا")},
+  theme:function(){
+    var dark=document.documentElement.getAttribute("data-theme")==="dark"||(!document.documentElement.getAttribute("data-theme")&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);
+    var n=dark?"light":"dark";applyTheme(n);try{localStorage.setItem(TK,n)}catch(e){}
+  },
+  today:function(){selDate=ymd();renderRec()},
+  folder:function(d){selDate=d.v;renderRec()},
+  reprint:function(d){var o=S.orders.filter(function(x){return x.id===+d.id})[0];if(o)showReceipt(o,false)},
+  delOrder:function(d){if(!confirm("یہ آرڈر حذف کریں؟"))return;S.orders=S.orders.filter(function(o){return o.id!==+d.id});save();renderRec()},
+  addItem:function(){
+    var n=$("newName").value.trim(),p=parseFloat($("newPrice").value);
+    if(!n||!(p>=0)){toast("نام اور ریٹ دونوں لکھیں");return}
+    S.menu.push({id:S.nextId++,name:n,price:p,cat:$("newCat").value});save();
+    $("newName").value="";$("newPrice").value="";renderMenu();toast("آئٹم شامل ہو گیا");
+  },
+  rmItem:function(d){
+    var m=menuItem(+d.id);if(!m||!confirm("«"+m.name+"» مینو سے ہٹائیں؟ پرانا ریکارڈ برقرار رہے گا۔"))return;
+    S.menu=S.menu.filter(function(x){return x.id!==m.id});delete cart[m.id];save();renderMenu();
+  },
+  addCat:function(){
+    var n=$("newCatName").value.trim();if(!n)return;
+    if(S.cats.indexOf(n)>-1){toast("یہ کیٹیگری پہلے سے ہے");return}
+    S.cats.push(n);save();$("newCatName").value="";renderMenu();toast("کیٹیگری شامل ہو گئی");
+  },
+  addBuy:function(){
+    var a=parseFloat($("buyAmt").value);if(!(a>0)){toast("رقم لکھیں");return}
+    S.purchases.push({id:Date.now(),date:$("buyDate").value||ymd(),note:$("buyNote").value.trim(),amount:a});save();
+    $("buyNote").value="";$("buyAmt").value="";renderStock();toast("خریداری سیو ہو گئی");
+  },
+  delBuy:function(d){S.purchases=S.purchases.filter(function(p){return p.id!==+d.id});save();renderStock()},
+  addStock:function(){
+    var n=$("stName").value.trim();if(!n){toast("چیز کا نام لکھیں");return}
+    S.stock.push({id:S.nextId++,name:n,unit:$("stUnit").value.trim()||"عدد",qty:parseFloat($("stQty").value)||0,min:parseFloat($("stMin").value)||0});save();
+    ["stName","stUnit","stQty","stMin"].forEach(function(i){$(i).value=""});renderStock();
+  },
+  delStock:function(d){S.stock=S.stock.filter(function(s){return s.id!==+d.id});save();renderStock()},
+  saveSettings:function(){
+    var s=S.settings;s.name=$("sName").value.trim()||"ریسٹورنٹ";s.phone=$("sPhone").value.trim();s.address=$("sAddr").value.trim();
+    s.taxPct=parseFloat($("sTax").value)||0;s.servicePct=parseFloat($("sSvc").value)||0;s.footer=$("sFoot").value.trim();
+    save();applyBrand();toast("سیٹنگز سیو ہو گئیں");
+  },
+  setPin:function(){
+    var p=$("sPin").value.trim();if(!/^\d{4,6}$/.test(p)){toast("پن 4 سے 6 عدد کا ہو");return}
+    S.settings.pin=p;unlocked=true;save();$("sPin").value="";applyBrand();toast("پن لگ گیا");
+  },
+  clearPin:function(){S.settings.pin="";save();applyBrand();toast("پن ہٹا دیا")},
+  bkMake:function(){var t=$("bk");t.value=JSON.stringify(S);t.focus();t.select();toast("متن کاپی کر کے محفوظ کر لیں")},
+  bkLoad:function(){
+    try{
+      var p=JSON.parse($("bk").value);
+      if(!p||!Array.isArray(p.menu)||!Array.isArray(p.orders))throw 0;
+      if(!confirm("موجودہ ڈیٹا بیک اپ سے بدل دیں؟"))return;
+      S=p;fix();save();applyBrand();resetTicket();renderSet();toast("بحال ہو گیا");
+    }catch(e){toast("بیک اپ کا متن درست نہیں")}
+  },
+  resetAll:function(){
+    if(!confirm("تمام ڈیٹا مٹا دیں؟"))return;
+    if(!confirm("آخری تصدیق: یہ واپس نہیں آئے گا۔"))return;
+    S=defaults();save();unlocked=false;applyBrand();resetTicket();render();toast("ڈیٹا صاف ہو گیا");
+  }
+};
+document.addEventListener("click",function(e){
+  var el=e.target.closest("[data-act]");if(!el)return;
+  var f=A[el.dataset.act];if(f)f(el.dataset);
+});
+
+function render(){
+  if(current==="order"){renderCats();renderItems();renderCart()}
+  else if(current==="dash")renderDash();
+  else if(current==="rec")renderRec();
+  else if(current==="menu")renderMenu();
+  else if(current==="stock")renderStock();
+  else if(current==="set")renderSet();
+  $("heldN").textContent=S.held.length;
+}
+applyBrand();syncTicketUI();render();
+
+// Pull cloud data once on open and MERGE it with local (never overwrite):
+// orders/purchases are combined by id, so an order saved offline is kept
+// even if the cloud copy is older, and gets pushed up once merged.
+function mergeArr(a,b){
+  var m={};(a||[]).concat(b||[]).forEach(function(x){m[x.id]=x});
+  return Object.keys(m).map(function(k){return m[k]}).sort(function(p,q){return (p.ts||"").localeCompare(q.ts||"")});
+}
+sbLoadOnce().then(function(cloud){
+  if(!cloud)return;
+  var freshDevice=!(S.orders&&S.orders.length);
+  S.orders=mergeArr(S.orders,cloud.orders);
+  S.purchases=mergeArr(S.purchases,cloud.purchases);
+  S.nextId=Math.max(S.nextId||100,cloud.nextId||100);
+  if(freshDevice){ // no local history yet: adopt cloud's menu/settings/stock too
+    S.menu=cloud.menu||S.menu; S.cats=cloud.cats||S.cats;
+    S.stock=cloud.stock||S.stock; S.settings=Object.assign({},S.settings,cloud.settings||{});
+  }
+  fix();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  applyBrand();resetTicket();render();
+  sbSaveNow(); // push the merged result back up
+});
+})();
+</script>
+</body>
+</html>
